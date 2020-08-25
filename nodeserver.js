@@ -16,11 +16,18 @@ function error(response, text) {
   response.end();
 }
 
+function forbidden(response) {
+  response.writeHead(403, {'Content-Type': 'text/html;charset:utf-8'});
+  response.write('<h2>Forbidden</h2><p>The requested file cannot be accessed.</p>');
+  response.end();
+}
+
 function start(config) {
   var host = conf.constant.host;
   if(config) conf.serv = config;
   function onRequest(request, response) {
     var frontUrl = '';
+
     if(request.url === '/favicon.ico') return;
     for(var key in conf.serv) {
       if(request.headers.host.indexOf(key) !== -1) {
@@ -29,6 +36,10 @@ function start(config) {
     }
     
     var nowTemp = host.frondend + (request.url.replace('/', '') || host.baseTemp);
+
+    // prevent directory traversal (预防漏洞)
+    if (request.url.includes('..')) forbidden(response);
+
     var httpHead = header(nowTemp);
     conf.app = conf.getApp(host.backend);
     if(!host) {
@@ -38,6 +49,8 @@ function start(config) {
 
     // 直接定向到模板
     var defaultTemp = function() {
+      console.log(request.url);
+
       fs.readFile(host.frondend + host.baseTemp, function(err, file) {
         if(err) {
           error(response, err);

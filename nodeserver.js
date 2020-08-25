@@ -37,7 +37,10 @@ function start(config) {
     var nowTemp = host.frondend + (request.url.replace('/', '') || host.baseTemp);
 
     // prevent directory traversal (预防漏洞)
-    if (request.url.includes('..')) forbidden(response);
+    if (nowTemp.includes('..')) {
+      forbidden(response);
+      return;
+    }
 
     var httpHead = header(nowTemp);
     conf.app = conf.getApp(host.backend);

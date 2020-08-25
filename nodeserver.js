@@ -27,7 +27,6 @@ function start(config) {
   if(config) conf.serv = config;
   function onRequest(request, response) {
     var frontUrl = '';
-
     if(request.url === '/favicon.ico') return;
     for(var key in conf.serv) {
       if(request.headers.host.indexOf(key) !== -1) {
@@ -49,8 +48,6 @@ function start(config) {
 
     // 直接定向到模板
     var defaultTemp = function() {
-      console.log(request.url);
-
       fs.readFile(host.frondend + host.baseTemp, function(err, file) {
         if(err) {
           error(response, err);
